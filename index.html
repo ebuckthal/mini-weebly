@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html ng-app="miniWeeblyApp">
+   <head>
+      <title>Mini-Weebly</title>
+      <link rel="stylesheet" href="css/main.css" />
+
+      <script src="js/angular.js"></script>
+      <script src="js/app.js"></script>
+   </head>
+   <body>
+
+      <div id="header"></div>
+
+      <div id="sideview">
+
+         <h1>Templates</h1>
+         <ul class="page-nav" ng-controller="pageCtrl">
+            <li ng-repeat="page in pageService.pages" 
+                ng-mouseenter="hover=true" 
+                ng-mouseleave="hover=false">
+
+               <h3 ng-bind="page.title" ng-hide="editing"></h3>
+               <input ng-model="page.title" ng-show="editing"/>
+
+               <span ng-show="hover" ng-click="editing = !editing">EDIT</span>
+               <span ng-show="hover" ng-click="deletePage($index)">DELETE</span>
+            </li>
+
+            <li> 
+               <input type="text" placeholder="ADD NEW PAGE" ng-model="title" ng-init="title = ''" />
+               <span ng-click="addNewPage(title); title = ''">+</span>
+            </li>
+         </ul>
+
+         <h1>Elements</h1>
+         <ul class="template-nav">
+            <li dragme type="title">TITLE</li>
+            <li dragme type="text">TEXT</li>
+            <li dragme type="image">IMAGE</li>
+            <li dragme type="nav">NAV</li>
+         </ul>
+
+      </div>
+
+      <div id="mainview"> 
+         <ul class="template-nav" ng-controller="pageCtrl">
+            <li ng-repeat="page in pageService.pages" 
+                ng-click="$parent.pageService.currentPage = $index">
+
+               <h3 ng-bind=page.title></h3>
+            </li>
+         </ul>
+         <div dropme drop="handleDrop" class="template-view" ng-controller="templateCtrl">
+            <h1 ng-bind="pageService.pages[pageService.currentPage].title"></h1>
+         </div>
+
+      </div>
+
+   </body>
+</html>
