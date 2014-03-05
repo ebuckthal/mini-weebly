@@ -6,21 +6,30 @@ angular.module('miniWeeblyApp', [])
    }
 })
 
+
+.service('Drop', function() {
+   this.type = '';
+   this.active = false;
+})
+
 .service('Pages', function() {
-      this.currentPage = 0;
-      
+
       this.pages = [
          { title: "Page 1",  elements: [] }
       ];
+
+      this.currentIndex = 0;
+      this.currentPage = this.pages[this.currentIndex];
 })
 
 .controller('pageCtrl', function($scope, Pages) {
 
    $scope.pageService = Pages;
 
-   $scope.addNewPage = function(title) {
-      if(title.length > 0) {
-         $scope.pageService.pages.push({ title: title, elements: [] });
+   $scope.addPage = function() {
+      if($scope.title.length > 0) {
+         $scope.pageService.pages.push({ title: $scope.title, elements: [] });
+         $scope.title = '';
       }
    }
 
@@ -29,61 +38,90 @@ angular.module('miniWeeblyApp', [])
          return;
       }
 
-      $scope.pageService.currentPage--;
-
       $scope.pageService.pages.splice(index, 1);
+
+      $scope.selectPage(Math.max($scope.pageService.currentIndex-1,0));
    }
+
+   $scope.selectPage = function(index) {
+      $scope.pageService.currentIndex = index;
+      $scope.pageService.currentPage = $scope.pageService.pages[$scope.pageService.currentIndex];
+   };
 
 })
 
-.controller('templateCtrl', function($scope, Pages) {
+.controller('templateCtrl', function($scope, Pages, Drop) {
 
+   $scope.dropService = Drop;
    $scope.pageService = Pages;
 
-   $scope.handleDrop = function(type) {
-      console.log('dropped type: ' + type);
-   } 
+   $scope.addElement = function() {
 
-   $scope.renderTemplate = function(index) {
+      console.log($scope.pageService);
 
+      if($scope.dropService.active) {
+
+         $scope.pageService.currentPage.elements.push({
+            type: $scope.dropService.type,
+            content: []
+         });
+
+         $scope.dropService.active = false;
+      }
    }
+
+   $scope.deleteElement = function(index) {
+      $scope.pageService.currentPage.elements.splice(index, 1);
+      //$scope.pageService.pages[$scope.pageService.currentPage].elements.splice(index, 1);
+   }
+
 })
 
 .directive('dropme', function() {
 
    return {
       restrict: "A",
-      link: function(scope, element) {
+      link: function(scope, element, attrs) {
 
-         element.on('mouseover', function(event) {
-            console.log('over');
+         element.on('mousemove', function(event) {
+            console.log(event.pageY-82-90);
+            console.log(event.pageX-308);
+
          });
 
+         element.on('mouseup', function(event) {
+            scope.$apply(attrs.drop);
+         });
       }
    }
 
 })
 
-.directive('dragme', function($document) {
+.directive('dragme', function($document, Drop) {
 
    return {
       restrict: "A",
       scope: {
          type: '@'
       },
-      link: function(scope, element) {
+      link: function(scope, element, attrs) {
+
+         scope.servDrop = Drop;
+
          var startX = 0, startY = 0, x = 0, y = 0;
 
-         element.css({
-            position: 'relative',
-            border: '1px solid red',
-            backgroundColor: 'lightgrey',
-            cursor: 'pointer',
-         });
-
         element.on('mousedown', function(event) {
+
+           Drop.type = attrs.type;
+           Drop.active = true;
+
           // Prevent default dragging of selected content
           event.preventDefault();
+
+          element.css({
+            'pointer-events': 'none',
+            'box-shadow': '5px 5px 20px rgba(0,0,0,0.3)' 
+          })
 
           startX = event.screenX;
           startY = event.screenY;
@@ -107,7 +145,9 @@ angular.module('miniWeeblyApp', [])
             element.css({
                top: '',
                left: '',
-               'z-index': ''
+               'z-index': '',
+               'box-shadow': '',
+               'pointer-events': 'auto'
             });
 
             $document.unbind('mousemove', mousemove);
@@ -116,105 +156,3 @@ angular.module('miniWeeblyApp', [])
       }
    }
 })
-
-.directive('draggable', function() {
-
-   return {
-      restrict: "A",
-      link: function(scope, element) {
-
-        var el = element[0];
-        //scope.drag = false;
-
-        el.draggable = true;
-
-        el.addEventListener(
-            'dragstart',
-            function(e) {
-               console.log('dragged type: ' + this.type);
-               e.dataTransfer.effectAllowed = 'move';
-               e.dataTransfer.setData('type', this.type);
-               this.classList.add('drag');
-               return false;
-            },
-            false
-        );
-
-        el.addEventListener(
-            'dragend',
-            function(e) {
-                this.classList.remove('drag');
-                return false;
-            },
-            false
-        );
-
-      }
-   }
-   
-})
-
-.directive('droppable', function() {
-
-   return {
-      restrict: "A",
-      scope: {
-         drop: '&' // parent
-      },
-      link: function(scope, element) {
-
-         var el = element[0];
-         el.addEventListener('dragover',
-            function(e) {
-               e.dataTransfer.dropEffect = 'move';
-               // allows us to drop
-               if (e.preventDefault) e.preventDefault();
-               this.classList.add('over');
-               return false;
-            },
-            false
-         );
-
-         el.addEventListener('dragenter',
-            function(e) {
-               this.classList.add('over');
-               return false;
-            },
-            false
-         );
-
-         el.addEventListener('dragleave',
-            function(e) {
-               this.classList.remove('over');
-               return false;
-            },
-            false
-         );
-
-         //console.log(scope);
-
-         el.addEventListener('drop',
-            function(e) {
-               //Stops some browsers from redirecting.
-               
-               if (e.stopPropagation) e.stopPropagation();
-               this.classList.remove('over');
-
-               var item = e.dataTransfer.getData('type');
-
-               scope.$apply(function(scope) {
-                  var fn = scope.drop();
-
-                  if ('undefined' !== typeof fn) {            
-                     //fn(e.dataTransfer.getData('type'));
-                     fn(item);
-                  }
-               });
-                         
-               return false;
-            },
-            false
-         );
-      }
-   }
-});

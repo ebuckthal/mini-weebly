@@ -1,67 +1,206 @@
+@font-face {
+   font-family: "ProximaNova-Reg";
+   src: url("/fonts/ProximaNova-Reg.otf");
+}
+
 * {
    margin: 0;
    padding: 0;
 }
 
-body {
-   height: 100%;
+div#header {
+   background-color: rgb(84,142,200);
+   z-index: 10;
+   position: fixed;
+   top: 0;
+   left: 0;
+   height: 40px;
+   width: 100%;
+   border-bottom: 1px solid rgb(101, 154, 205);
+   box-shadow: 0px 1px 1px rgb(64, 64, 64);
 }
 
-#header {
-   height: 100px;
-   background-color: #ccc;
-}
-
-#sideview {
-   width: 300px;
-   background-color: #abc;
+div#content {
+   min-height: 100%;
    position: absolute;
-   top: 100px;
-   bottom: 0px;
-
 }
 
-#mainview {
-   float: left;
-   background-color: #cba;
-   position: absolute;
-   top: 100px;
-   left: 300px;
+div#sideview {
+   position: fixed;
+   background-color: rgb(45, 62,79);
+   width:236px;
+   left: 0px;
+   top: 0px;
    bottom: 0px;
-   right: 0px;
-
+   padding-top: 40px;
+   font-family: 'ProximaNova-Reg', sans-serif;
+   font-size: 12px;
 }
 
-.template-view {
-   height: 400px; 
+div#templateview {
+   position: relative;
 
+   margin: 82px 73px 82px 308px;
+   font-family: 'ProximaNova-Reg', sans-serif;
+   font-size: 12px;
+}
+
+#sideview h1 {
+   background-color: rgb(77, 97, 117);
+   border-top: 2px solid rgb(26,39,51);
+   border-bottom: 2px solid rgb(26,39,51);
+   width:100%;
+   height: 31px;
+   color: rgb(157, 179, 201);
+   text-align: center;
+   vertical-align: middle;
+   line-height: 31px;
+   font-size: 12px;
+   text-transform: uppercase;
 }
 
 .page-nav {
+   padding: 24px;
    list-style: none;
+   line-height: 32px;
+   vertical-align: middle;
+   text-transform: uppercase;
 }
 
 .page-nav li {
-   height: 50px;
-   width: 200px;
-   border: 1px solid black;
-   padding: 5px;
-   margin: 5px;
+   height: 32px;
+   padding: 0 5px 0 15px;
+   margin: 10px;
+   background-color: rgb(63, 81, 104);
+   color: white;
+   border-radius: 5px;
+   border: 1px solid rgb(79,97,117);
+   box-shadow: 0px 2px 0px rgb(36,50,63);
 }
 
-.page-nav li span {
-   padding: 0 5px;
+input {
+   font-family : inherit;
+   font-size: 14px;
+   background: none;
+   border: none;
+   color: white;
+   text-transform: uppercase;
+   width: 90px;
+   background-color: rgb(45, 62,79);
+   border-radius: 3px;
 }
 
-.template-nav {
+input:focus {
+   outline: none;
+}
+
+.page-nav li h3 {
+   width: 90px;
+   float: left;
+}
+
+.page-nav li.selected {
+   background-color: rgb(84,142,200);
+}
+
+.page-nav li.new {
+   background-color: rgba(0,0,0,0);
+   border: 2px solid rgb(79,97,117);
+}
+.page-nav li div {
+   height: 14px;
+   width: 14px;
+   float: right;
+   margin: 9px 5px 9px 0px;
+   background-color: white;
+
+}
+
+ul.element-nav {
    list-style: none;
+}
+
+.element-nav li {
+   display: inline-block;
+   height: 116px;
+   width: 116px;
+   color: rgb(95,118,141); 
+   text-transform: uppercase;
+   box-shadow: inset 1px 1px 0px rgb(34,49,62);
+}
+
+.element-nav li:hover {
+   background-color: rgb(64,83,102);
+}
+
+.element-nav li h4 {
+   text-align: center;
+   text-transform: uppercase;
+   height: 26px;
+   line-height: 26px;
+}
+
+.element-nav li div {
+   width: 52px;
+   height: 55px;
+   margin: 22px auto 0px;
+   background-color: rgba(0,0,0,0);
+   background-image: url('/sprites/Element-Icons@2x.png');
+   background-repeat: no-repeat;
+   background-size: 232px;
+   border-radius: 6px;
+   position: relative;
+   cursor: pointer;
+}
+
+.element-nav li div.title {
+   background-position: -9px -8px; 
+}
+
+.element-nav li div.text {
+   background-position: -63px -8px; 
+}
+
+.element-nav li div.image {
+   background-position: -117px -8px; 
+}
+
+.element-nav li div.nav {
+   background-position: -171px -8px; 
+}
+
+ul.template-nav {
+   list-style: none;
+   padding-bottom: 50px;
 }
 
 .template-nav li {
    display: inline-block;
-   height: 50px;
-   width: 100px;
-   padding: 5px;
-   margin: 5px;
-   border: 1px solid black;
+   height: 36px;
+   width: 119px;
+   line-height: 36px;
+   color: rgb(152,170,187);;
+   text-align: center;
+   text-transform: uppercase;
+   background-color: white;
+   border: 2px solid rgb(152,170,187);
+   border-radius: 5px;
+   margin-right: 13px;
+   cursor: pointer;
+}
+
+.template-nav li.selected {
+   color: white;
+   background-color: rgb(152,170,187);
+   border: 2px solid rgb(133,152,171);
+}
+
+.elements-drop {
+   min-height: 1000px;
+}
+
+.elements-view {
+   width: 50%;
+   float: left;
+
 }

@@ -9,51 +9,66 @@
    </head>
    <body>
 
-      <div id="header"></div>
 
+      <div id="header"></div>
       <div id="sideview">
 
          <h1>Templates</h1>
          <ul class="page-nav" ng-controller="pageCtrl">
             <li ng-repeat="page in pageService.pages" 
                 ng-mouseenter="hover=true" 
-                ng-mouseleave="hover=false">
+                ng-mouseleave="hover=false"
+                ng-class="{selected: pageService.currentIndex == $index}">
 
                <h3 ng-bind="page.title" ng-hide="editing"></h3>
                <input ng-model="page.title" ng-show="editing"/>
 
-               <span ng-show="hover" ng-click="editing = !editing">EDIT</span>
-               <span ng-show="hover" ng-click="deletePage($index)">DELETE</span>
+               <div class="delete" ng-show="hover" ng-click="deletePage($index)"></div>
+               <div class="edit" ng-show="hover" ng-click="editing = !editing"></div>
             </li>
 
-            <li> 
-               <input type="text" placeholder="ADD NEW PAGE" ng-model="title" ng-init="title = ''" />
-               <span ng-click="addNewPage(title); title = ''">+</span>
+            <li class="new"> 
+               <input type="text" placeholder="ADD NEW PAGE" ng-model="title" />
+               <div class="add" ng-click="addPage()"></div>
             </li>
          </ul>
 
          <h1>Elements</h1>
-         <ul class="template-nav">
-            <li dragme type="title">TITLE</li>
-            <li dragme type="text">TEXT</li>
-            <li dragme type="image">IMAGE</li>
-            <li dragme type="nav">NAV</li>
+         <ul class="element-nav">
+            <li><div dragme class="title" type="title"></div><h4>TITLE</h4></li>
+            <li><div dragme class="text" type="text"></div><h4>TEXT</h4></li>
+            <li><div dragme class="image" type="image"></div><h4>IMAGE</h4></li>
+            <li><div dragme class="nav" type="nav"></div><h4>NAV</h4></li>
          </ul>
+         <h1>Settings</h1>
 
       </div>
 
-      <div id="mainview"> 
-         <ul class="template-nav" ng-controller="pageCtrl">
+      <div id="templateview" ng-controller="pageCtrl"> 
+         <ul class="template-nav">
             <li ng-repeat="page in pageService.pages" 
-                ng-click="$parent.pageService.currentPage = $index">
+                  ng-click="selectPage($index)" 
+                  ng-class="{selected: page == pageService.currentPage }">
 
                <h3 ng-bind=page.title></h3>
             </li>
          </ul>
-         <div dropme drop="handleDrop" class="template-view" ng-controller="templateCtrl">
-            <h1 ng-bind="pageService.pages[pageService.currentPage].title"></h1>
-         </div>
 
+         <div dropme drop="addElement()" ng-controller="templateCtrl" class="elements-drop">
+            <h1 
+               ng-show="pageService.currentPage.elements.length == 0"
+               >Add content here</h1>
+            <ul class="elements-view">
+               <li ng-repeat="element in pageService.currentPage.elements"
+                     ng-mouseenter="hover=true"
+                     ng-mouseleave="hover=false"
+                     type="element.type">
+                  <h1>{{element.type}}</h1>
+
+                  <span ng-show="hover && !dropService.active" ng-click="deleteElement($index)">DELETE</span>
+               </li>
+            </ul>
+         </div>
       </div>
 
    </body>
