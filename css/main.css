@@ -6,6 +6,12 @@
 * {
    margin: 0;
    padding: 0;
+   box-sizing: border-box;
+}
+
+body {
+   position: relative;
+   z-index: -10;
 }
 
 div#header {
@@ -39,10 +45,10 @@ div#sideview {
 
 div#templateview {
    position: relative;
-
    margin: 82px 73px 82px 308px;
    font-family: 'ProximaNova-Reg', sans-serif;
    font-size: 12px;
+   z-index: -1;
 }
 
 #sideview h1 {
@@ -78,7 +84,7 @@ div#templateview {
    box-shadow: 0px 2px 0px rgb(36,50,63);
 }
 
-input {
+.page-nav > input {
    font-family : inherit;
    font-size: 14px;
    background: none;
@@ -151,6 +157,7 @@ ul.element-nav {
    border-radius: 6px;
    position: relative;
    cursor: pointer;
+   z-index: 20;
 }
 
 .element-nav li div.title {
@@ -171,7 +178,6 @@ ul.element-nav {
 
 ul.template-nav {
    list-style: none;
-   padding-bottom: 50px;
 }
 
 .template-nav li {
@@ -195,12 +201,69 @@ ul.template-nav {
    border: 2px solid rgb(133,152,171);
 }
 
-.elements-drop {
+.group-drop {
    min-height: 1000px;
+   padding-top: 50px;
 }
 
-.elements-view {
+.groups-view {
+   width: 100%;
+   float: left;
+   list-style: none;
+
+}
+
+.groups-view li {
+   background-color: #ddd;
+   z-index: 0;
+   width: 100%;
+   margin-top: 10px;
+}
+
+.groups-view li.drop-indicator {
+   border-top: red solid 10px;
+   margin-top: 0px;
+}
+
+.groups-view li.drop-indicator-bottom {
+   border-bottom: red solid 10px;
+}
+
+.element {
+   padding: 20px;
+   position: relative;
+   background-color: #ccc;
+   width: 100%;
+}
+
+.element.half{
    width: 50%;
    float: left;
+}
 
+.element.drop-indicator {
+   background-color: red;
+   height: 200px;
+}
+
+.element.text {
+   height: 200px;
+}
+
+.element.nav {
+   height: 200px;
+}
+
+.element.title {
+   height: 100px;
+}
+
+.element.image {
+   height: 300px;
+}
+
+textarea {
+   resize: none;
+   width: 100%;
+   height: 100%;
 }

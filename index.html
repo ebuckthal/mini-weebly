@@ -9,7 +9,6 @@
    </head>
    <body>
 
-
       <div id="header"></div>
       <div id="sideview">
 
@@ -35,10 +34,10 @@
 
          <h1>Elements</h1>
          <ul class="element-nav">
-            <li><div dragme class="title" type="title"></div><h4>TITLE</h4></li>
-            <li><div dragme class="text" type="text"></div><h4>TEXT</h4></li>
-            <li><div dragme class="image" type="image"></div><h4>IMAGE</h4></li>
-            <li><div dragme class="nav" type="nav"></div><h4>NAV</h4></li>
+            <li><div draggable class="title" type="title"></div><h4>TITLE</h4></li>
+            <li><div draggable class="text" type="text"></div><h4>TEXT</h4></li>
+            <li><div draggable class="image" type="image"></div><h4>IMAGE</h4></li>
+            <li><div draggable class="nav" type="nav"></div><h4>NAV</h4></li>
          </ul>
          <h1>Settings</h1>
 
@@ -54,18 +53,74 @@
             </li>
          </ul>
 
-         <div dropme drop="addElement()" ng-controller="templateCtrl" class="elements-drop">
-            <h1 
-               ng-show="pageService.currentPage.elements.length == 0"
-               >Add content here</h1>
-            <ul class="elements-view">
-               <li ng-repeat="element in pageService.currentPage.elements"
-                     ng-mouseenter="hover=true"
-                     ng-mouseleave="hover=false"
-                     type="element.type">
-                  <h1>{{element.type}}</h1>
+         <div droppable-area
+            ng-controller="templateCtrl" class="group-drop">
 
-                  <span ng-show="hover && !dropService.active" ng-click="deleteElement($index)">DELETE</span>
+            <h1 ng-show="pageService.currentPage.groups.length == 0">
+               Add content here
+            </h1>
+
+            <ul class="groups-view">
+
+               <li ng-repeat="group in pageService.currentPage.groups"
+                  ng-class="{ 
+                     'drop-indicator': hoverElementIndex < 0 && hoverGroupIndex == $index ,
+                     'drop-indicator-bottom': hoverElementIndex < 0 && hoverGroupIndex == pageService.currentPage.groups.length && hoverGroupIndex-1 == $index}">
+
+                     <div 
+                        ng-show="hoverGroupIndex == $index && hoverElementIndex == 0 && group.elements.length < 2" 
+                        class="element drop-indicator half">
+                     </div>
+
+                  <div ng-repeat="elements in group.elements"
+                     class="element {{ group.elements[$index].type }}"
+                     ng-mouseenter="hover = true"
+                     ng-mouseleave="hover = false"
+                     ng-class="{ 
+                           half: group.elements.length > 1
+                           || (hoverGroupIndex == $parent.$index && hoverElementIndex > -1) 
+                        }">
+
+                     <div
+                        style="position: absolute; top: 0; right: 0;"
+                        ng-show="hover && !servDrop.active" 
+                        ng-click="deleteElement($parent.$index, $index)">
+                        x
+                     </div>
+
+                     <div 
+                        class="image"
+                        ng-show="group.elements[$index].type == 'image'">
+                        Add image here
+                     </div>
+
+                     <div 
+                        class="nav"
+                        ng-show="group.elements[$index].type == 'nav'">
+                        here is the nav
+                     </div>
+
+                     <input 
+                        class="title"
+                        ng-model="group.elements[$index].content"
+                        ng-show="group.elements[$index].type == 'title'">
+                     </input>
+                     
+                     <textarea
+                        class="text"
+                        ng-model="group.elements[$index].content" 
+                        ng-show="group.elements[$index].type == 'text'">
+                     </textarea>
+
+
+                  </div>
+
+                  <div 
+                     ng-show="hoverGroupIndex == $index && hoverElementIndex == 1 && group.elements.length < 2" 
+                     class="element drop-indicator half">
+                  </div>
+
+                  <div style="clear: both;"></div>
                </li>
             </ul>
          </div>
