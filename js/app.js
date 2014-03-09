@@ -3,7 +3,6 @@ angular.module('miniWeeblyApp', [])
 .service('Drop', function() {
    this.type = '';
    this.active = false;
-   this.index = 0;
 })
 
 .service('Pages', function() {
@@ -17,6 +16,7 @@ angular.module('miniWeeblyApp', [])
 })
 
 .controller('pageCtrl', function($scope, Pages) {
+
 
    $scope.pageService = Pages;
 
@@ -49,22 +49,13 @@ angular.module('miniWeeblyApp', [])
    $scope.pageService = Pages;
 
    $scope.addGroup = function(index, type) {
-      console.log('addGroup: ' + index + ' ' + type);
-      var element = {
-         type: type,
-         content: []
-      };
 
       $scope.pageService.currentPage.groups.splice(index, 0, {
-         elements: [element]
+         elements: []
       });
-
-      console.log($scope.pageService.currentPage);
-
    };
 
    $scope.addElementToGroup = function(group, type, index) {
-      console.log('add element to Group: ' + group + ' ' + type);
 
       var grp = $scope.pageService.currentPage.groups[group];
       
@@ -72,11 +63,18 @@ angular.module('miniWeeblyApp', [])
          return;
       }
 
-      console.log(grp.elements.length);
+      if (type == 'title') {
+         var minheight = 50;
+         var height = 100;
+      } else {
+         var minheight = 150;
+         var height = 200;
+      }
 
       var element = {
          type: type,
-         content: []
+         size: { height: height, width: 200, minheight: minheight},
+         content: ''
       };
 
       grp.elements.splice(index, 0, element);
@@ -84,7 +82,6 @@ angular.module('miniWeeblyApp', [])
 
    $scope.deleteGroup = function(index) {
       $scope.pageService.currentPage.groups.splice(index, 1);
-      //$scope.pageService.pages[$scope.pageService.currentPage].elements.splice(index, 1);
    }
 
    $scope.deleteElement = function(group, index) {
@@ -99,7 +96,77 @@ angular.module('miniWeeblyApp', [])
 
 })
 
-.directive('droppableArea', function(Drop) {
+.directive('resizable', function($document) {
+
+   return {
+      restrict: "A",
+      link: function(scope, element, attrs) {
+
+         element.on('mousedown', function(event) {
+            scope.dragging = scope.whichBorder(event);
+
+            scope.origin = { 
+               x: event.x, 
+               y: event.y, 
+               width: scope.element.size.width, 
+               height: scope.element.size.height 
+            };
+
+            $document.on('mousemove', mousemove);
+            $document.on('mouseup', mouseup);
+         });
+ 
+         function mousemove(event) {
+
+            event.preventDefault();
+
+            if(scope.dragging == null) {
+               return;
+            }
+
+            if(scope.dragging == 'bottom') {
+               var delta = event.y - scope.origin.y; 
+               scope.element.size.height = scope.origin.height + delta;
+               scope.element.size.height = Math.max(scope.element.size.height, scope.element.size.minheight);
+            }
+
+
+            //scope.origin = { x: event.x, y: event.y };
+        }
+
+        function mouseup() {
+
+            scope.dragging = null;
+
+            $document.unbind('mousemove', mousemove);
+            $document.unbind('mouseup', mouseup);
+         }
+
+         scope.whichBorder = function(event) {
+            var y = event.y;
+            var x = event.x;
+            var rect = element[0].getBoundingClientRect();
+
+            
+            if (y < rect.top + 10) {
+               return 'top';
+            } else if (y > rect.bottom - 10) {
+               return 'bottom';
+            } else if (x < rect.left + 10) {
+               return 'left';
+            } else if (x > rect.right - 10) {
+               return 'right';
+            } else {
+               return null;
+            }
+         };
+
+      }
+   }
+
+})
+
+.directive('droppable', function(Drop) {
 
    return {
       restrict: "A",
@@ -110,23 +177,34 @@ angular.module('miniWeeblyApp', [])
          scope.hoverGroupIndex = -1;
          scope.hoverElementIndex = -1;
 
+         scope.isInThisGroup = function(index) {
+            return (scope.hoverElementIndex < 0 && scope.hoverGroupIndex == index);
+         }
+
+         scope.isLastGroup = function() {
+            return (scope.pageService.currentPage.groups.length == scope.hoverGroupIndex);
+
+         }
+
+         scope.isInThisElement = function(group, element) {
+            return (scope.hoverGroupIndex == group 
+                  && scope.hoverElementIndex == element 
+                  && scope.pageService.currentPage.groups[group].elements.length < 2);
+         }
+
          scope.getDropLocationFromElement = function(el, event) {
 
             var y = event.y;
             var x = event.x;
             var rect = el.getBoundingClientRect();
 
-            var height = rect.bottom - rect.top;
-            var width = rect.right - rect.left;
-            
-            
-            if(y < rect.top + (height * .2)) {
+            if(y < rect.top + (rect.height * .2)) {
                return 'top';
                
-            } else if(y > rect.bottom - (height * .2)) {
+            } else if(y > rect.bottom - (rect.height * .2)) {
                return 'bottom';
 
-            } else if (x < rect.left + (width * .5)) {
+            } else if (x < rect.left + (rect.width * .5)) {
                return 'left';
 
             } else {
@@ -140,9 +218,10 @@ angular.module('miniWeeblyApp', [])
 
             var added = false;
 
-            for(var i = 0; i < grps.length; i++) {
+            for(var i = 0; i < grps.length && !added; i++) {
                
                var loc = scope.getDropLocationFromElement(grps[i], event);
+               console.log(loc);
 
                if (loc == 'left') {
 
@@ -150,7 +229,6 @@ angular.module('miniWeeblyApp', [])
                   scope.hoverElementIndex = 0;
 
                   added = true;
-                  break;
 
                } else if (loc == 'right') {
 
@@ -158,7 +236,6 @@ angular.module('miniWeeblyApp', [])
                   scope.hoverElementIndex = 1;
 
                   added = true;
-                  break;
 
                } else if (loc == 'top') {
 
@@ -166,7 +243,6 @@ angular.module('miniWeeblyApp', [])
                   scope.hoverElementIndex = -1;
 
                   added = true;
-                  break;
                }
             }
 
@@ -206,12 +282,12 @@ angular.module('miniWeeblyApp', [])
 
             } else { //make a new group
 
-               scope.addGroup(scope.hoverGroupIndex, scope.servDrop.type);
+               scope.addGroup(scope.hoverGroupIndex);
+               scope.addElementToGroup(scope.hoverGroupIndex, scope.servDrop.type, 0);
             }
 
             scope.hoverGroupIndex = -1;
             scope.hoverElementIndex = -1;
-            scope.servDrop.active = false;
 
             scope.$apply();
          });
@@ -234,28 +310,26 @@ angular.module('miniWeeblyApp', [])
          var startX = 0, startY = 0, x = 0, y = 0;
 
         element.on('mousedown', function(event) {
+          event.preventDefault();
 
            Drop.type = attrs.type;
            Drop.active = true;
-
-          // Prevent default dragging of selected content
-          event.preventDefault();
 
           element.css({
             'pointer-events': 'none',
             'box-shadow': '5px 5px 20px rgba(0,0,0,0.3)' 
           })
 
-          startX = event.screenX;
-          startY = event.screenY;
+          startX = event.x;
+          startY = event.y;
 
           $document.on('mousemove', mousemove);
           $document.on('mouseup', mouseup);
         });
  
         function mousemove(event) {
-          y = event.screenY - startY;
-          x = event.screenX - startX;
+          y = event.y - startY;
+          x = event.x - startX;
 
           element.css({
             top: y + 'px',
@@ -266,6 +340,8 @@ angular.module('miniWeeblyApp', [])
         }
 
         function mouseup() {
+           Drop.active = false;
+
             element.css({
                top: '',
                left: '',

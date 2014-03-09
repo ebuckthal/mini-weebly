@@ -26,6 +26,16 @@ div#header {
    box-shadow: 0px 1px 1px rgb(64, 64, 64);
 }
 
+.header-image {
+   margin-left: 28px;
+   width: 39px;
+   height: 39px;
+
+   background-image: url('/sprites/Weebly-Logo.png');
+   background-repeat: no-repeat;
+   background-color: rgba(0,0,0,0);
+}
+
 div#content {
    min-height: 100%;
    position: absolute;
@@ -34,6 +44,7 @@ div#content {
 div#sideview {
    position: fixed;
    background-color: rgb(45, 62,79);
+   color: rgb(95,118,141); 
    width:236px;
    left: 0px;
    top: 0px;
@@ -47,7 +58,7 @@ div#templateview {
    position: relative;
    margin: 82px 73px 82px 308px;
    font-family: 'ProximaNova-Reg', sans-serif;
-   font-size: 12px;
+   font-size: 14px;
    z-index: -1;
 }
 
@@ -56,86 +67,132 @@ div#templateview {
    border-top: 2px solid rgb(26,39,51);
    border-bottom: 2px solid rgb(26,39,51);
    width:100%;
-   height: 31px;
    color: rgb(157, 179, 201);
    text-align: center;
    vertical-align: middle;
-   line-height: 31px;
+   line-height: 35px;
    font-size: 12px;
    text-transform: uppercase;
 }
 
 .page-nav {
-   padding: 24px;
+   padding: 14px 24px 12px;
    list-style: none;
-   line-height: 32px;
+   line-height: 34px;
    vertical-align: middle;
    text-transform: uppercase;
 }
 
 .page-nav li {
-   height: 32px;
+   height: 34px;
    padding: 0 5px 0 15px;
    margin: 10px;
    background-color: rgb(63, 81, 104);
    color: white;
    border-radius: 5px;
-   border: 1px solid rgb(79,97,117);
    box-shadow: 0px 2px 0px rgb(36,50,63);
 }
 
-.page-nav > input {
+.page-nav li.new {
+   box-shadow: none;
+}
+
+.page-nav span {
+   float: left;
+   width: 90px;
+   white-space: nowrap;
+   overflow: hidden;
+}
+
+.page-nav li div.add, .page-nav li div.edit, .page-nav li div.delete {
+   background-image: url('/sprites/Add-Delete-Edit-Icons@2x.png');
+   background-repeat: no-repeat;
+   background-color: rgba(0,0,0,0);
+   background-size: 79px;
+   width: 16px;
+   height: 16px;
+   margin: 8px 5px 8px 0px;
+   float: right;
+   cursor: pointer;
+}
+
+.page-nav li div.add {
+   background-position: -13px -13px;
+}
+
+.page-nav li div.add:hover {
+   background-position: -13px -32px;
+}
+
+.page-nav li div.edit {
+   background-position: -33px -13px;
+}
+
+.page-nav li div.edit:hover {
+   background-position: -33px -32px;
+}
+
+.page-nav li div.delete {
+   background-position: -53px -13px;
+}
+.page-nav li div.delete:hover {
+   background-position: -53px -32px;
+}
+
+.page-nav input {
    font-family : inherit;
-   font-size: 14px;
    background: none;
    border: none;
-   color: white;
+   font-size: 105%;
    text-transform: uppercase;
-   width: 90px;
-   background-color: rgb(45, 62,79);
-   border-radius: 3px;
+   width: 95px;
+   color: white;
+   outline: solid 1px white;
 }
 
-input:focus {
+.page-nav li.new input {
    outline: none;
+   color: rgb(79,97,117);
 }
 
-.page-nav li h3 {
-   width: 90px;
-   float: left;
+.page-nav li.new input:focus {
+   outline: none;
+   color: rgb(79,97,117);
 }
+
 
 .page-nav li.selected {
    background-color: rgb(84,142,200);
 }
 
+.page-nav li.deleting {
+   background-color: rgb(214,107,103);
+}
+
 .page-nav li.new {
-   background-color: rgba(0,0,0,0);
    border: 2px solid rgb(79,97,117);
 }
-.page-nav li div {
-   height: 14px;
-   width: 14px;
-   float: right;
-   margin: 9px 5px 9px 0px;
-   background-color: white;
 
+.page-nav input::-webkit-input-placeholder {
+   color: rgb(79,97,117);
 }
+
 
 ul.element-nav {
    list-style: none;
+   clear: both;
 }
 
 .element-nav li {
    display: inline-block;
-   height: 116px;
    width: 116px;
+   height: 116px;
    color: rgb(95,118,141); 
    text-transform: uppercase;
-   box-shadow: inset 1px 1px 0px rgb(34,49,62);
+   box-shadow: inset 2px 2px 0px rgb(34,49,62);
 }
 
-.element-nav li:hover {
+.element-nav li.hovered {
    background-color: rgb(64,83,102);
 }
 
@@ -156,7 +213,7 @@ ul.element-nav {
    background-size: 232px;
    border-radius: 6px;
    position: relative;
-   cursor: pointer;
+   cursor: move;
    z-index: 20;
 }
 
@@ -176,15 +233,45 @@ ul.element-nav {
    background-position: -171px -8px; 
 }
 
+div.settings-nav {
+   height: 52px;
+   box-shadow: 0px 2px 0px rgb(36,50,63);
+}
+
+.settings-nav span {
+   text-transform: uppercase;
+   line-height: 52px;
+   width: 90px;
+   margin-left: 25px;
+}
+
+.settings-nav .settings-image {
+   margin-top: 14px;
+   margin-right: 25px;
+   background-image: url('/sprites/Toggle-Switch@2x.png');
+   background-repeat: no-repeat;
+   background-color: rgba(0,0,0,0);
+   width: 67px;
+   height: 24px;
+   background-size: 62px;
+   float: right;
+   background-position: 0px -6px;
+   cursor: pointer;
+}
+
+.settings-nav.enabled .settings-image {
+   background-position: 0px -55px;
+}
+
 ul.template-nav {
    list-style: none;
 }
 
 .template-nav li {
    display: inline-block;
-   height: 36px;
+   height: 40px;
    width: 119px;
-   line-height: 36px;
+   line-height: 40px;
    color: rgb(152,170,187);;
    text-align: center;
    text-transform: uppercase;
@@ -195,6 +282,14 @@ ul.template-nav {
    cursor: pointer;
 }
 
+.template-nav li span {
+   float: left;
+   width: 108px;
+   padding-left: 10px;
+   white-space: nowrap;
+   overflow: hidden;
+}
+
 .template-nav li.selected {
    color: white;
    background-color: rgb(152,170,187);
@@ -202,7 +297,7 @@ ul.template-nav {
 }
 
 .group-drop {
-   min-height: 1000px;
+   min-height: 2000px;
    padding-top: 50px;
 }
 
@@ -214,56 +309,159 @@ ul.template-nav {
 }
 
 .groups-view li {
-   background-color: #ddd;
+   padding-top: 4px;
    z-index: 0;
    width: 100%;
-   margin-top: 10px;
 }
 
 .groups-view li.drop-indicator {
-   border-top: red solid 10px;
-   margin-top: 0px;
+   border-top: rgb(143,199,255) dashed 4px;
+   padding-top: 0px;
 }
 
 .groups-view li.drop-indicator-bottom {
-   border-bottom: red solid 10px;
+   border-bottom: rgb(143,199,255) dashed 4px;
 }
 
-.element {
-   padding: 20px;
+.element-container {
    position: relative;
-   background-color: #ccc;
    width: 100%;
+   height: 100%;
+   padding: 10px;
 }
 
-.element.half{
+.element-container.half{
    width: 50%;
    float: left;
 }
 
-.element.drop-indicator {
-   background-color: red;
-   height: 200px;
+
+.element {
+   position: relative;
+   width: 100%;
+   border-radius: 5px;
+   padding: 9px;
 }
 
-.element.text {
+.element.drop-indicator.left {
    height: 200px;
+   border-radius: 0px;
+   border-right: rgb(143,199,255) dashed 4px;
+}
+
+.element.drop-indicator.right {
+   height: 200px;
+   border-radius: 0px;
+   border-left: rgb(143,199,255) dashed 4px;
 }
 
 .element.nav {
-   height: 200px;
+   background-color: rgb(235,239,243);
+   border: 2px solid rgb(179,192,206);
+   padding: 8px;
+   height: 100%;
 }
 
-.element.title {
-   height: 100px;
+.element.nav:before {
+   content: '';
+   display: inline-block;
+   height: 50%;
+}
+
+.element.nav .nav {
+   margin: -10px auto;
+   color: rgb(192,204,215);
+   text-transform: uppercase;
+   text-align: center;
 }
 
 .element.image {
-   height: 300px;
+   background-color: rgb(235,239,243);
+   border: 2px solid rgb(179,192,206);
+   padding: 8px;
+   height: 100%;
 }
 
-textarea {
+.element.image:before {
+   content: '';
+   display: inline-block;
+   height: 50%;
+}
+
+.element.image .image-background {
+   height: 128px; 
+   width: 104px;
+   margin: -64px auto;
+
+   background-image: url('/sprites/Image-Placeholder@2x.png');
+   background-repeat: no-repeat;
+   background-color: rgba(0,0,0,0);
+   background-size: 138px;
+
+   background-position: -17px -15px;
+
+   color: rgb(192,204,215);
+   text-transform: uppercase;
+   text-align: center;
+   padding-top: 120px;
+}
+
+.element.hovered {
+   border: 2px solid rgb(143,199,255);
+   padding: 8px;
+}
+
+.element.deleting {
+   border: 2px solid rgb(214,107,103);
+   padding: 8px;
+}
+
+.element .delete {
+   position: absolute; 
+   top: 0; 
+   right: 0; 
+   height: 32px; 
+   width: 32px;
+
+   background-image: url('/sprites/Delete-Element.png');
+   background-repeat: no-repeat;
+   background-color: rgba(0,0,0,0);
+   cursor: pointer;
+
+   background-position: -13px -13px;
+}
+
+.element.deleting .delete {
+   background-position: -55px -13px;
+}
+
+.element.text textarea {
    resize: none;
    width: 100%;
    height: 100%;
+   border: none;
+   background-color: rgba(0,0,0,0);
+   color: rgb(80,101,122);
+   font-size: 14px;
+   line-height: 20px;
+}
+.element.text textarea:focus {
+   outline: none;
+}
+
+.element .nav {
+}
+
+.element.title input {
+   font-size: 24px;
+   border: none;
+   color: rgb(80,101,122);
+   background-color: rgba(0,0,0,0);
+}
+.element.title input:focus {
+   outline: none;
+}
+
+.transparent {
+   background-color: rgba(0,0,0,0) !important;
 }
