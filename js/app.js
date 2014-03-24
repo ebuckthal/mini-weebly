@@ -6,13 +6,12 @@ angular.module('miniWeeblyApp', [])
 })
 
 .service('Pages', function() {
+   this.pages = [
+      { title: "Page 1",  groups: [] }
+   ];
 
-      this.pages = [
-         { title: "Page 1",  groups: [] }
-      ];
-
-      this.currentIndex = 0;
-      this.currentPage = this.pages[this.currentIndex];
+   this.currentIndex = 0;
+   this.currentPage = this.pages[this.currentIndex];
 })
 
 .controller('pageCtrl', function($scope, Pages) {
@@ -93,6 +92,10 @@ angular.module('miniWeeblyApp', [])
          $scope.deleteGroup(group);
       }
    }
+
+})
+
+.controller('dropCtrl', function() {
 
 })
 

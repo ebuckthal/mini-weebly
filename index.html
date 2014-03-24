@@ -16,13 +16,19 @@
       <div id="sideview">
 
          <h1>Templates</h1>
-         <ul class="page-nav" ng-controller="pageCtrl">
-            <li ng-repeat="page in pageService.pages" 
-                ng-mouseenter="hover=true" 
-                ng-mouseleave="hover=false"
-                ng-class="{selected: pageService.currentIndex == $index, deleting: deleting}">
+         <ul class="page-nav" 
+            ng-controller="pageCtrl">
 
-               <span ng-bind="page.title" ng-hide="editing"></span>
+            <li ng-repeat="page in pageService.pages" 
+               ng-mouseenter="hover=true" 
+               ng-mouseleave="hover=false"
+               ng-class="{selected: pageService.currentIndex == $index, deleting: deleting}">
+
+                <span 
+                   ng-bind="page.title" 
+                   ng-hide="editing">
+                </span>
+
                <input class="transparent" 
                   ng-minlength="1"
                   ng-model="page.title" 
@@ -34,57 +40,88 @@
                   ng-mouseleave="deleting=false"
                   ng-click="deletePage($index)">
                </div>
-               <div class="edit" ng-show="hover" ng-click="editing = !editing"></div>
+
+               <div class="edit" 
+                  ng-show="hover" 
+                  ng-click="editing = !editing">
+               </div>
+               
             </li>
 
             <li class="new transparent"> 
+
                <input class="transparent" 
                   type="text" 
                   placeholder="ADD NEW PAGE" 
                   ng-init="title=''" 
                   ng-model="title"/>
 
-               <div class="add" ng-click="addPage()"></div>
+               <div class="add" 
+                  ng-click="addPage()">
+               </div>
+
             </li>
          </ul>
 
          <h1>Elements</h1>
-         <ul class="element-nav" ng-controller="pageCtrl" ng-init="draggable=['title', 'text', 'image', 'nav']">
+
+         <ul class="element-nav" 
+            ng-controller="pageCtrl" 
+            ng-init="draggable=['title', 'text', 'image', 'nav']">
+
             <li ng-repeat="type in draggable" 
                ng-class="{ hovered: hover }">
+
                <div draggable 
                   ng-mouseenter="hover=true" 
                   ng-mouseleave="hover=false" 
                   class="{{ type }}" 
                   type="{{ type }}">
                </div>
-               <h4 ng-bind="type"></h4>
+
+               <h4 ng-bind="type">
+               </h4>
+
             </li>
          </ul>
+
          <h1>Settings</h1>
-         <div 
-            class="settings-nav" 
+
+         <div class="settings-nav" 
             ng-class="{ enabled: enabled }"
             ng-init="enabled=false">
-            <span>Site Grid</span>
-            <div ng-click="enabled=!enabled" class="settings-image">
+
+            <span>
+               Site Grid
+            </span>
+
+            <div class="settings-image"
+               ng-click="enabled=!enabled" >
             </div>
+
          </div>
 
       </div>
 
-      <div id="templateview" ng-controller="pageCtrl"> 
-         <ul class="template-nav">
-            <li ng-repeat="page in pageService.pages" 
-                  ng-click="selectPage($index)" 
-                  ng-class="{selected: page == pageService.currentPage }">
+      <div id="templateview" 
+         ng-controller="pageCtrl"> 
 
-               <span ng-bind=page.title></span>
+         <ul class="template-nav">
+
+            <li ng-repeat="page in pageService.pages" 
+               ng-class="{ selected: page == pageService.currentPage }"
+               ng-click="selectPage($index)">
+
+               <span ng-bind=page.title>
+               </span>
+
             </li>
+
          </ul>
 
          <div droppable
-            ng-controller="templateCtrl" class="group-drop">
+            class="drop-group"
+            ng-controller="templateCtrl">
 
             <h1 ng-show="pageService.currentPage.groups.length == 0">
                Add content here
@@ -94,20 +131,21 @@
 
                <li ng-repeat="group in pageService.currentPage.groups"
                   ng-class="{ 
-                  'drop-indicator': isInThisGroup($index), 
-                  'drop-indicator-bottom': isInThisGroup($index+1) && isLastGroup() }"> 
+                     'drop-indicator': isInThisGroup($index), 
+                     'drop-indicator-bottom': isInThisGroup($index+1) && isLastGroup() 
+                  }"> 
 
-                  <div 
-                     ng-show="isInThisElement($index, 0)" 
-                     class="element-container half">
+                  <div class="element-container half"
+                     ng-show="isInThisElement($index, 0)">
+
                      <div class="element drop-indicator left">
                      </div>
                   </div>
 
                   <div ng-repeat="element in group.elements"
                      class="element-container"
-                     ng-class="{ half: group.elements.length > 1
-                        || (hoverGroupIndex == $parent.$index && hoverElementIndex > -1) 
+                     ng-class="{ 
+                        half: group.elements.length > 1 || (hoverGroupIndex == $parent.$index && hoverElementIndex > -1) 
                      }">
 
                      <div class='element {{ element.type }}'
@@ -127,13 +165,16 @@
 
                         <div 
                            ng-show="element.type == 'image'">
+
                            <div class="image-background">
                               Add Image +
                            </div>
+
                         </div>
 
                         <div class="nav"
                            ng-show="element.type == 'nav'">
+
                            <span>
                               Webpage Navigation
                            </span>
@@ -157,6 +198,7 @@
                   <div 
                      ng-show="isInThisElement($index, 1)" 
                      class="element-container half">
+
                      <div class="element drop-indicator right">
                      </div>
                   </div>
