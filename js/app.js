@@ -3,15 +3,18 @@ angular.module('miniWeeblyApp', [])
 .service('Drop', function() {
    this.type = '';
    this.active = false;
+   this.id;
 })
 
 .service('Pages', function() {
    this.pages = [
-      { title: "Page 1",  groups: [] }
+      { title: "Page 1",  elements: [] }
    ];
 
+   this.elementIndex = 1;
    this.currentIndex = 0;
    this.currentPage = this.pages[this.currentIndex];
+
 })
 
 .controller('pageCtrl', function($scope, Pages) {
@@ -21,7 +24,7 @@ angular.module('miniWeeblyApp', [])
 
    $scope.addPage = function() {
       if($scope.title.length > 0) {
-         $scope.pageService.pages.push({ title: $scope.title, groups: [] });
+         $scope.pageService.pages.push({ title: $scope.title, elements: [] });
          $scope.title = '';
       }
    }
@@ -47,129 +50,203 @@ angular.module('miniWeeblyApp', [])
 
    $scope.pageService = Pages;
 
-   $scope.addGroup = function(index, type) {
+   $scope.addElement = function(type, x, y) {
 
-      $scope.pageService.currentPage.groups.splice(index, 0, {
-         elements: []
-      });
-   };
-
-   $scope.addElementToGroup = function(group, type, index) {
-
-      var grp = $scope.pageService.currentPage.groups[group];
-      
-      if(grp.elements.length > 1) {
-         return;
-      }
+      var minheight, minwidth, height, width;
 
       if (type == 'title') {
-         var minheight = 50;
-         var height = 100;
-      } else {
-         var minheight = 150;
-         var height = 200;
+         minwidth = 300;
+         minheight = 200;
+
+      } else if (type == 'nav') {
+         minwidth = 200;
+         minheight = 300;
+         
+      } else if (type == 'image') {
+         minwidth = 300;
+         minheight = 300;
+
+      } else if (type == 'text') {
+         minwidth = 300;
+         minheight = 300;
       }
 
+      height = 400;
+      width = 400;
+
       var element = {
+         id: $scope.pageService.elementIndex++,
          type: type,
-         size: { height: height, width: 200, minheight: minheight},
+         preferred: { top: y, left: x },
+         current: { top: y, left: x },
+         size: { height: height, width: width, minheight: minheight, minwidth: minwidth },
          content: ''
       };
 
-      grp.elements.splice(index, 0, element);
+      $scope.pageService.currentPage.elements.push(element);
+
+      return element;
    }
 
-   $scope.deleteGroup = function(index) {
-      $scope.pageService.currentPage.groups.splice(index, 1);
-   }
+   $scope.deleteElement = function(id) {
 
-   $scope.deleteElement = function(group, index) {
+      for(var i = 0, element; element = $scope.pageService.currentPage.elements[i++];) {
 
-      var grp = $scope.pageService.currentPage.groups[group];
-      grp.elements.splice(index, 1);
-
-      if(grp.elements.length == 0) {
-         $scope.deleteGroup(group);
+         if(element.id == id) {
+            $scope.pageService.currentPage.elements.splice(i-1, 1);
+            break;
+         }
       }
+
+      $scope.settleElements();
    }
 
-})
+   $scope.settleElements = function() {
 
-.controller('dropCtrl', function() {
+      if($scope.pageService.currentPage.elements.length <= 0) {
+         return; 
+      }
 
-})
+      var widthTemplate = document.querySelector('.group-drop').offsetWidth;
 
-.directive('resizable', function($document) {
+      var elementsToPlace = $scope.pageService.currentPage.elements.slice(0);
 
-   return {
-      restrict: "A",
-      link: function(scope, element, attrs) {
+      var thisRowStartsAt; 
 
-         element.on('mousedown', function(event) {
-            scope.dragging = scope.whichBorder(event);
+      while(elementsToPlace.length > 0) {
 
-            scope.origin = { 
-               x: event.x, 
-               y: event.y, 
-               width: scope.element.size.width, 
-               height: scope.element.size.height 
-            };
-
-            $document.on('mousemove', mousemove);
-            $document.on('mouseup', mouseup);
+         elementsToPlace = _.sortBy(elementsToPlace, function(element) {
+            return element.preferred.top;
          });
- 
-         function mousemove(event) {
 
-            event.preventDefault();
+         var firstElement = elementsToPlace[0];
 
-            if(scope.dragging == null) {
-               return;
-            }
-
-            if(scope.dragging == 'bottom') {
-               var delta = event.y - scope.origin.y; 
-               scope.element.size.height = scope.origin.height + delta;
-               scope.element.size.height = Math.max(scope.element.size.height, scope.element.size.minheight);
-            }
-
-
-            //scope.origin = { x: event.x, y: event.y };
-        }
-
-        function mouseup() {
-
-            scope.dragging = null;
-
-            $document.unbind('mousemove', mousemove);
-            $document.unbind('mouseup', mouseup);
+         if(thisRowStartsAt == undefined) {
+            thisRowStartsAt = firstElement.preferred.top;
          }
 
-         scope.whichBorder = function(event) {
-            var y = event.y;
-            var x = event.x;
-            var rect = element[0].getBoundingClientRect();
+         var group = [];
 
-            
-            if (y < rect.top + 10) {
-               return 'top';
-            } else if (y > rect.bottom - 10) {
-               return 'bottom';
-            } else if (x < rect.left + 10) {
-               return 'left';
-            } else if (x > rect.right - 10) {
-               return 'right';
+         group.push(firstElement);
+
+         //get a group of elements that are within this elements height
+         for(var i = 1; i < elementsToPlace.length; i++) {
+            var element = elementsToPlace[i];
+
+            if(element.preferred.top < thisRowStartsAt + firstElement.size.height) {
+               group.push(element)
             } else {
-               return null;
+               break;
             }
-         };
 
+         }
+         elementsToPlace.splice(0, group.length);
+
+         //sort this group by leftness
+         group = _.sortBy(group, function(element) {
+            return element.preferred.left;
+         })
+
+         var rightBound = 0;
+         var nextRowStartsAt = thisRowStartsAt;
+
+         //place element in best spot, push it's leftness if necessary
+         for(var i = 0, element; element = group[i++];) {
+
+            element.current.left = Math.max(element.preferred.left, rightBound);
+
+            rightBound = element.current.left + element.size.width;
+
+            if(rightBound > widthTemplate) {
+               elementsToPlace.push(element);
+
+            } else {
+               element.current.top = Math.max(element.preferred.top, thisRowStartsAt);
+
+               nextRowStartsAt = Math.max(element.current.top + element.size.height, nextRowStartsAt);
+            }
+         }
+
+         thisRowStartsAt = nextRowStartsAt;
       }
    }
 
 })
 
-.directive('droppable', function(Drop) {
+//handles elements moving themselves and making their locations fit 
+.controller('elementCtrl', function($scope, $document, Drop, Pages) {
+
+   $scope.servDrop = Drop;
+   $scope.servPages = Pages;
+
+   $scope.startResize = function(direction, id) {
+
+      event.stopPropagation();
+
+      $scope.width = document.querySelector('.group-drop').offsetWidth;
+
+      $scope.origin = { 
+         x: event.x, 
+         y: event.y, 
+         width: $scope.element.size.width, 
+         height: $scope.element.size.height,
+         top: $scope.element.current.top,
+         left: $scope.element.current.left
+      };
+
+      $scope.dragging = direction;
+
+
+      $scope.servDrop.active = true;
+      $scope.servDrop.id = id;
+
+      $document.on('mousemove', $scope.resize);
+      $document.on('mouseup', $scope.endResize);
+
+   }
+
+   $scope.resize = function() {
+
+      var deltax = event.x - $scope.origin.x;
+      var deltay = event.y - $scope.origin.y;
+
+      if($scope.dragging == 'bottom') {
+
+         $scope.element.size.height = Math.max($scope.origin.height + deltay, $scope.element.size.minheight);
+
+      } else if($scope.dragging == 'left') {
+
+         $scope.element.size.width = Math.max($scope.origin.width - deltax, $scope.element.size.minwidth);
+         $scope.element.preferred.left = Math.max(0, $scope.origin.left + deltax);
+
+      } else if($scope.dragging == 'right') {
+
+         $scope.element.size.width = Math.max($scope.origin.width + deltax, $scope.element.size.minwidth);
+
+      } else if($scope.dragging == 'move') {
+
+         $scope.element.preferred.left = Math.min($scope.width - $scope.element.size.width, Math.max(0, $scope.origin.left + deltax));
+         $scope.element.preferred.top = Math.max(0, $scope.origin.top + deltay);
+      }
+
+      $scope.settleElements();
+      $scope.$apply();
+   }
+
+   $scope.endResize = function() {
+
+      $scope.dragging = null;
+
+      $scope.servDrop.active = false;
+
+      $document.unbind('mousemove');
+      $document.unbind('mouseup');
+
+   }
+
+})
+
+.directive('droppable', function(Drop, $document) {
 
    return {
       restrict: "A",
@@ -177,122 +254,57 @@ angular.module('miniWeeblyApp', [])
 
          scope.servDrop = Drop;
 
-         scope.hoverGroupIndex = -1;
-         scope.hoverElementIndex = -1;
+         scope.resizeElement;
 
-         scope.isInThisGroup = function(index) {
-            return (scope.hoverElementIndex < 0 && scope.hoverGroupIndex == index);
-         }
+         function getOffset(element) {
 
-         scope.isLastGroup = function() {
-            return (scope.pageService.currentPage.groups.length == scope.hoverGroupIndex);
+            var retTop = 0;
+            var retLeft = 0;
 
-         }
+            while(element) {
+               retTop += element.offsetTop;
+               retLeft += element.offsetLeft;
 
-         scope.isInThisElement = function(group, element) {
-            return (scope.hoverGroupIndex == group 
-                  && scope.hoverElementIndex == element 
-                  && scope.pageService.currentPage.groups[group].elements.length < 2);
-         }
-
-         scope.getDropLocationFromElement = function(el, event) {
-
-            var y = event.y;
-            var x = event.x;
-            var rect = el.getBoundingClientRect();
-
-            if(y < rect.top + (rect.height * .2)) {
-               return 'top';
-               
-            } else if(y > rect.bottom - (rect.height * .2)) {
-               return 'bottom';
-
-            } else if (x < rect.left + (rect.width * .5)) {
-               return 'left';
-
-            } else {
-               return 'right';
-            }
-         }
-
-         scope.setDropLocation = function(event) {
-
-            var grps = angular.element(element.children()[1]).children();
-
-            var added = false;
-
-            for(var i = 0; i < grps.length && !added; i++) {
-               
-               var loc = scope.getDropLocationFromElement(grps[i], event);
-               console.log(loc);
-
-               if (loc == 'left') {
-
-                  scope.hoverGroupIndex = i;
-                  scope.hoverElementIndex = 0;
-
-                  added = true;
-
-               } else if (loc == 'right') {
-
-                  scope.hoverGroupIndex = i;
-                  scope.hoverElementIndex = 1;
-
-                  added = true;
-
-               } else if (loc == 'top') {
-
-                  scope.hoverGroupIndex = i;
-                  scope.hoverElementIndex = -1;
-
-                  added = true;
-               }
+               element = element.offsetParent;
             }
 
-            if(!added) { //must go at last element
-               scope.hoverGroupIndex = i;
-               scope.hoverElementIndex = -1;
-            }
+            return { top: retTop, left: retLeft };
 
-         };
+         }
 
-
-         element.on('mousemove', function(event) {
-
-            if(!scope.servDrop.active) {
-               scope.hoverGroupIndex = -1;
-               scope.hoverElementIndex = -1;
-
-               scope.$apply();
+         element.on('mouseleave', function(event) {
+            if(!scope.servDrop.dragging || !scope.servDrop.id) {
                return;
             }
 
-            scope.setDropLocation(event);
+            scope.resizeElement.scope().deleteElement(scope.servDrop.id);
 
             scope.$apply();
+
+            scope.servDrop.id = null;
 
          });
 
-         element.on('mouseup', function(event) {
+         element.on('mouseenter', function(event) {
 
-            if(!scope.servDrop.active) {
+
+            if(!scope.servDrop.active || !scope.servDrop.dragging) {
                return;
             }
 
-            if(scope.hoverElementIndex > -1) { //add to existing group
+            var offset = getOffset(document.querySelector('.group-drop'));
 
-               scope.addElementToGroup(scope.hoverGroupIndex, scope.servDrop.type, scope.hoverElementIndex);
-
-            } else { //make a new group
-
-               scope.addGroup(scope.hoverGroupIndex);
-               scope.addElementToGroup(scope.hoverGroupIndex, scope.servDrop.type, 0);
-            }
-
-            scope.hoverGroupIndex = -1;
-            scope.hoverElementIndex = -1;
+            var element = scope.addElement(scope.servDrop.type, 
+                  event.pageX-offset.left, 
+                  event.pageY-offset.top-82);
 
             scope.$apply();
+
+            scope.servDrop.id = element.id;
+
+            scope.resizeElement = angular.element(document.querySelector('[data-id="' + element.id + '"]'));
+
+            scope.resizeElement.scope().startResize('move', element.id);
          });
       }
    }
@@ -315,8 +327,9 @@ angular.module('miniWeeblyApp', [])
         element.on('mousedown', function(event) {
           event.preventDefault();
 
-           Drop.type = attrs.type;
-           Drop.active = true;
+           scope.servDrop.type = attrs.type;
+           scope.servDrop.active = true;
+           scope.servDrop.dragging = true;
 
           element.css({
             'pointer-events': 'none',
@@ -343,7 +356,8 @@ angular.module('miniWeeblyApp', [])
         }
 
         function mouseup() {
-           Drop.active = false;
+           scope.servDrop.active = false;
+           scope.servDrop.dragging = false;
 
             element.css({
                top: '',

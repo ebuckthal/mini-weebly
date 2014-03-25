@@ -297,8 +297,9 @@ ul.template-nav {
 }
 
 .group-drop {
+   position: relative;
    min-height: 2000px;
-   padding-top: 50px;
+   margin-top: 50px;
 }
 
 .groups-view {
@@ -337,22 +338,36 @@ ul.template-nav {
 
 
 .element {
-   position: relative;
-   width: 100%;
+   position: absolute;
    border-radius: 5px;
    padding: 9px;
 }
 
-.element.drop-indicator.left {
-   height: 200px;
-   border-radius: 0px;
-   border-right: rgb(143,199,255) dashed 4px;
+.drag-left {
+   position: absolute;
+   left: -6px;
+   top: 20px;
+   width: 10px;
+   height: 100px;
+   background-color: rgba(50,50,50,.5);
 }
 
-.element.drop-indicator.right {
-   height: 200px;
-   border-radius: 0px;
-   border-left: rgb(143,199,255) dashed 4px;
+.drag-right {
+   position: absolute;
+   right: -6px;
+   top: 20px;
+   width: 10px;
+   height: 100px;
+   background-color: rgba(50,50,50,.5);
+}
+
+.drag-bottom {
+   position: absolute;
+   left: 20px;
+   bottom: -6px;
+   width: 100px;
+   height: 10px;
+   background-color: rgba(50,50,50,.5);
 }
 
 .element.nav {

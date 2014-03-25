@@ -5,6 +5,7 @@
       <link rel="stylesheet" href="css/main.css" />
 
       <script src="js/angular.js"></script>
+      <script src="js/underscore.js"></script>
       <script src="js/app.js"></script>
    </head>
    <body>
@@ -120,94 +121,84 @@
          </ul>
 
          <div droppable
-            class="drop-group"
+            class="group-drop"
             ng-controller="templateCtrl">
 
             <h1 ng-show="pageService.currentPage.groups.length == 0">
                Add content here
             </h1>
 
-            <ul class="groups-view">
 
-               <li ng-repeat="group in pageService.currentPage.groups"
-                  ng-class="{ 
-                     'drop-indicator': isInThisGroup($index), 
-                     'drop-indicator-bottom': isInThisGroup($index+1) && isLastGroup() 
-                  }"> 
+            <div class="element {{ element.type }}"
+               data-id="{{ element.id }}"
+               ng-class="{ hovered: hover || (servDrop.active && servDrop.id == element.id), deleting: deleting && hover }"
+               ng-controller="elementCtrl"
+               ng-repeat="element in pageService.currentPage.elements"
+               ng-mouseenter="hover = (!servDrop.active)"
+               ng-mouseleave="hover = false"
+               ng-mousedown="startResize('move', element.id)"
+               ng-style="{ 
+                  height: element.size.height + 'px', 
+                  width: element.size.width + 'px',
+                  top: element.current.top + 'px',
+                  left: element.current.left + 'px'
+               }">
 
-                  <div class="element-container half"
-                     ng-show="isInThisElement($index, 0)">
 
-                     <div class="element drop-indicator left">
-                     </div>
+               <div class="drag-left"
+                  ng-show="hover || (servDrop.active && servDrop.id == element.id)" 
+                  ng-mousedown="startResize('left', element.id)">
+               </div>
+
+               <div class="drag-right"
+                  ng-show="hover || (servDrop.active && servDrop.id == element.id)" 
+                  ng-mousedown="startResize('right', element.id)">
+               </div>
+
+               <div class="drag-bottom"
+                  ng-show="hover || (servDrop.active && servDrop.id == element.id)" 
+                  ng-mousedown="startResize('bottom', element.id)">
+               </div>
+
+               <div class="delete"
+                  ng-mouseenter="deleting = true"
+                  ng-mouseleave="deleting = false"
+                  ng-show="hover || (servDrop.active && servDrop.id == element.id)" 
+                  ng-mousedown="$event.stopPropagation();"
+                  ng-click="deleteElement(element.id)">
+               </div>
+
+               <div 
+                  ng-show="element.type == 'image'">
+
+                  <div class="image-background">
+                     Add Image +
                   </div>
 
-                  <div ng-repeat="element in group.elements"
-                     class="element-container"
-                     ng-class="{ 
-                        half: group.elements.length > 1 || (hoverGroupIndex == $parent.$index && hoverElementIndex > -1) 
-                     }">
+               </div>
 
-                     <div class='element {{ element.type }}'
-                        resizable
-                        ng-mouseenter="hover = true"
-                        ng-mouseleave="hover = (false || dragging)"
-                        ng-class="{ hovered: hover && !servDrop.active, deleting: deleting && !servDrop.active }"
-                        ng-style="{ height: element.size.height + 'px' }">
-                     
+               <div class="nav"
+                  ng-show="element.type == 'nav'">
 
-                        <div class="delete"
-                           ng-mouseenter="deleting = true"
-                           ng-mouseleave="deleting = false"
-                           ng-show="hover && !servDrop.active" 
-                           ng-click="deleteElement($parent.$index, $index)">
-                        </div>
+                  <span>
+                     Webpage Navigation
+                  </span>
+               </div>
 
-                        <div 
-                           ng-show="element.type == 'image'">
+               <input 
+                  placeholder="Add Title Here"
+                  ng-model="element.content"
+                  ng-show="element.type == 'title'"/>
 
-                           <div class="image-background">
-                              Add Image +
-                           </div>
+               <textarea
+                  placeholder="Start typing here."
+                  ng-model="element.content"
+                  ng-show="element.type == 'text'">
+               </textarea>
 
-                        </div>
+            </div>
 
-                        <div class="nav"
-                           ng-show="element.type == 'nav'">
-
-                           <span>
-                              Webpage Navigation
-                           </span>
-                        </div>
-
-                        <input 
-                           placeholder="Add Title Here"
-                           ng-model="element.content"
-                           ng-show="element.type == 'title'"/>
-
-                        <textarea
-                           placeholder="Start typing here."
-                           ng-model="element.content"
-                           ng-show="element.type == 'text'">
-                        </textarea>
-
-                     </div>
-
-                  </div>
-
-                  <div 
-                     ng-show="isInThisElement($index, 1)" 
-                     class="element-container half">
-
-                     <div class="element drop-indicator right">
-                     </div>
-                  </div>
-
-                  <div style="clear: both;"></div>
-               </li>
-            </ul>
          </div>
       </div>
-
    </body>
 </html>
